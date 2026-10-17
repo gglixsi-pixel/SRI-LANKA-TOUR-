@@ -356,6 +356,18 @@ ul,ol{margin:0;padding:0;list-style:none}
 
 <script>
 (function(){
+  /* всегда открываем с начала страницы, даже если в адресе остался #book */
+  var touched=false;
+  try{history.scrollRestoration='manual';}catch(e){}
+  function toTop(){
+    if(touched)return;
+    if(location.hash&&history.replaceState)history.replaceState(null,'',location.pathname+location.search);
+    window.scrollTo(0,0);
+  }
+  ['wheel','touchstart','keydown','mousedown'].forEach(function(ev){window.addEventListener(ev,function(){touched=true;},{passive:true,once:true});});
+  toTop();
+  window.addEventListener('load',toTop);
+  window.addEventListener('pageshow',function(e){if(e.persisted){touched=false;toTop();}});
   var slider=document.getElementById('slider'),dotsBox=document.getElementById('dots');
   var cards=slider.querySelectorAll('.review'),dots=[];
   cards.forEach(function(_,i){var d=document.createElement('i');if(!i)d.className='on';dotsBox.appendChild(d);dots.push(d);});
@@ -370,7 +382,6 @@ ul,ol{margin:0;padding:0;list-style:none}
       if(!t)return;
       e.preventDefault();
       t.scrollIntoView({behavior:reduce?'auto':'smooth',block:'start'});
-      if(id&&history.replaceState)history.replaceState(null,'','#'+id);
     });
   });
 
